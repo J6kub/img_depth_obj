@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MoGe-3 · 3D Studio</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header><div class="brand"><span class="logo">M</span><span>MO<span class="muted">GE</span> / STUDIO</span></div><span class="status"><i></i> LOCAL WORKSPACE</span></header>
+  <main>
+    <section class="intro">
+      <div class="eyebrow">IMAGE → GEOMETRY</div>
+      <h1>Turn a photo into<br><em>something tangible.</em></h1>
+      <p>Generate a MoGe-3 depth map, convert it to an OBJ mesh, and inspect the result in 3D.</p>
+    </section>
+    <section class="workspace">
+      <div class="panel controls">
+        <div class="panel-head"><span>01 / SOURCE IMAGE</span><span class="tiny">PNG · JPG · WEBP</span></div>
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
+          <div id="uploadPrompt"><div class="upload-icon">↑</div><strong>Drop an image here</strong><span>or click to browse · max 15 MB</span></div>
+          <img id="sourcePreview" alt="Uploaded image preview" hidden>
+        </label>
+        <div class="file-meta" id="fileMeta">No image selected</div>
+        <button id="generate" disabled>Generate 3D model <span>↗</span></button>
+        <div class="progress" id="progress" hidden><div class="spinner"></div><div><b id="progressTitle">Processing image</b><small id="progressText">Sending to ComfyUI…</small></div></div>
+        <p class="hint">Inference runs on your local ComfyUI instance. Large images may take a little while.</p>
+      </div>
+      <div class="panel viewer-panel">
+        <div class="panel-head"><span>02 / 3D PREVIEW</span><span class="tiny" id="viewerStatus">WAITING FOR MODEL</span></div>
+        <div class="viewer" id="viewer">
+          <div class="empty-state" id="emptyState"><div class="cube">◇</div><b>Your model will appear here</b><span>Upload a photo and start generation</span></div>
+          <div id="canvasHost"></div>
+          <div class="viewer-tools" id="viewerTools" hidden><button id="resetView" title="Reset camera">↺</button><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div>
+        </div>
+        <div class="results" id="results" hidden>
+          <div><span>DEPTH MAP</span><a id="depthLink" target="_blank">Open PNG ↗</a></div>
+          <div><span>3D MESH</span><a id="downloadLink">Download OBJ ↓</a></div>
+        </div>
+      </div>
+    </section>
+    <footer><span>MO GEOMETRY WORKBENCH</span><span>FASTAPI + COMFYUI + THREE.JS</span></footer>
+  </main>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

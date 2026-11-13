@@ -1,0 +1,13 @@
+# Adapter template only: replace this with your existing converter script.
+# Required command-line interface:
+#   python depth_to_obj.py INPUT_DEPTH.png OUTPUT.obj
+#
+# If your script has a different interface, either adapt it to this signature
+# or change convert_depth() in main.py.
+import sys
+
+input_png, output_obj = sys.argv[1], sys.argv[2]
+raise SystemExit(
+    "Replace this example with your depth-map-to-OBJ converter. "
+    f"Input: {input_png}; expected output: {output_obj}"
+)
