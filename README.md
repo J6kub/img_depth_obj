@@ -7,6 +7,20 @@ A small local web app:
 4. Your existing Python depth-to-OBJ script converts the PNG.
 5. Three.js previews the OBJ in the browser; user can orbit/zoom and download it.
 
+## Screenshots
+
+### T-rex
+![Image 1](static/img/1.png)
+
+### Kim Jong-Un
+![Image 2](static/img/2.png)
+
+### Trump
+![Image 3](static/img/3.png)
+
+### Boneca Ambalabu
+![Image 4](static/img/4.png)
+
 ## Setup
 
 Python 3.10+ recommended.

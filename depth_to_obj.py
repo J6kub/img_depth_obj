@@ -60,7 +60,7 @@ def depthmap_to_obj(
     )
     mesh.apply_transform(rotation)
     
-    mid_x = (mesh.bounds[0][0] + mesh.bounds[1][0]) * 0.15
+    mid_x = (mesh.bounds[0][0] + mesh.bounds[1][0]) * 0.20
 
     # Keep vertices/faces on the left side of the midpoint
     plane_origin = [mid_x, 0, 0]
