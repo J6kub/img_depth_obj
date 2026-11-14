@@ -35,23 +35,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Copy your existing depth-map converter into this directory as `depth_to_obj.py`.
-It must accept two positional arguments:
-
-```bash
-python depth_to_obj.py INPUT_DEPTH.png OUTPUT.obj
-```
-
-If your converter uses another CLI, adapt `convert_depth()` in `main.py`.
-
 ## Configure ComfyUI
 
 1. Start ComfyUI with its server enabled (default port 8188).
 2. Open your MoGe-3 workflow.
 3. Make sure its depth output is connected to a `Save Image` node.
-4. Choose **Save (API Format)** and save the file as `workflows/moge3_api.json`.
+4. Choose **Save (API Format)** and save the file as `workflows/moge3_api.json`. - lowkey iz already there
 5. Open the JSON and find the `LoadImage` node ID.
-6. Set `COMFY_LOAD_IMAGE_NODE` to that ID. Default is `10`.
+6. Set `COMFY_LOAD_IMAGE_NODE` to that ID. Default is `10`. $env:COMFY_LOAD_IMAGE_NODE="3"
 
 Configuration can be set as environment variables, or copied from `.env.example`
 into your shell environment. `COMFY_URL` defaults to `http://127.0.0.1:8188`.
