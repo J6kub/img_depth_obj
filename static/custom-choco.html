@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#391a22">
+<title>Bestill egendefinert sjokolade · Sjokoladefabrikken</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+  }
+}
+</script>
+<style>
+:root {
+  --vin: #6a252d;
+  --vin-deep: #43151d;
+  --gull: #e6bf81;
+  --gull-soft: #d6ab68;
+  --lys: #faefe2;
+  --paper: #fffaf0;
+  --sand: #f1e4cf;
+  --line: #e8d9c5;
+  --ink: #412b28;
+  --muted: #8b7770;
+  --dark: #2f151c;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #29141a;
+  color: var(--ink);
+  font: 15px/1.55 'DM Sans', system-ui, sans-serif;
+}
+h1, h2, h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid #995232; outline-offset: 2px; }
+
+/* Mast */
+.mast {
+  background: var(--dark);
+  color: #fff7e7;
+  min-height: 72px;
+  border-bottom: 2px solid #a67d50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px clamp(16px, 4vw, 48px);
+  gap: 16px;
+}
+.brandmark { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.crest {
+  height: 44px; width: 44px;
+  border: 1px solid #c8a171;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: Georgia, serif;
+  font-size: 26px;
+  color: #f0c784;
+  box-shadow: inset 0 0 0 3px #3b1c24;
+}
+.brandmark strong {
+  display: block;
+  font: 600 22px 'Playfair Display', Georgia, serif;
+  letter-spacing: .2px;
+}
+.brandmark small {
+  display: block;
+  color: #d8b994;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.mast-right {
+  color: #e9d5b9;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ribbon {
+  background: #eaddc9;
+  color: #765442;
+  border-bottom: 1px solid #decaac;
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 10px 16px;
+}
+
+/* Layout */
+.app-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px clamp(14px, 3vw, 40px) 64px;
+}
+.intro {
+  margin-bottom: 22px;
+}
+.intro .eyebrow {
+  font-size: 11px;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: #976d4d;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
+}
+.intro h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  letter-spacing: -1px;
+  color: #fff4e8;
+  margin-bottom: 8px;
+}
+.intro p {
+  color: #c9b5a4;
+  max-width: 560px;
+  font-size: 14px;
+  margin: 0;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: 22px;
+  align-items: start;
+}
+
+/* Showcase / 3D stage */
+.showcase {
+  background: #342026;
+  border-radius: 20px;
+  border: 1px solid #8d6456;
+  box-shadow: 0 22px 55px #4a252a44;
+  overflow: hidden;
+  position: sticky;
+  top: 14px;
+}
+.showcase-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(#51303a, #3d222a);
+  border-bottom: 1px solid #97704d;
+  color: #f4d8ae;
+  gap: 10px;
+}
+.showcase-head span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+.stage {
+  position: relative;
+  aspect-ratio: 1.15 / 1;
+  min-height: 360px;
+  max-height: 560px;
+  background: radial-gradient(ellipse at 54% 50%, #4a3530, #24191f 70%);
+}
+#canvasHost {
+  position: absolute;
+  inset: 0;
+}
+#canvasHost canvas { display: block; width: 100%; height: 100%; }
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #c5ac98;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+}
+.empty-state b { color: #f0e0c8; font-size: 15px; }
+.empty-state .icon { font-size: 42px; color: #a67d50; margin-bottom: 6px; }
+.viewer-tools {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 5;
+  color: #e8d5b8;
+  font-size: 10px;
+  letter-spacing: .4px;
+}
+.viewer-tools.visible { display: flex; }
+.viewer-tools button {
+  background: #4a3034;
+  color: #f5e6c8;
+  border: 1px solid #a67d50;
+  border-radius: 6px;
+  width: 32px;
+  height: 28px;
+  font-size: 14px;
+}
+.viewer-tools button:hover { background: #6a4549; }
+.stage-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-top: 1px solid #946f52;
+  background: #3a252a;
+  color: #efe0c6;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.stage-foot small { display: block; color: #c5ac98; font-size: 11px; }
+.stage-foot strong {
+  display: block;
+  font: 600 16px 'Playfair Display', Georgia, serif;
+  margin-top: 2px;
+}
+.measure-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.measure-pills span {
+  background: #4a3034;
+  border: 1px solid #8a6550;
+  border-radius: 100px;
+  padding: 5px 10px;
+  font-size: 10px;
+  color: #f0dcc0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Controls panel */
+.controls {
+  min-width: 0;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid #dfcebb;
+  border-radius: 20px;
+  box-shadow: 0 12px 36px #69423518;
+  padding: clamp(18px, 2.5vw, 28px);
+  position: relative;
+  overflow: hidden;
+}
+.panel:before {
+  content: '✦';
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  color: #d3ac78;
+  font-size: 24px;
+  opacity: .55;
+  pointer-events: none;
+}
+.panel-head {
+  padding-right: 28px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+}
+.panel-head .overline {
+  display: block;
+  color: #a07851;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.panel-head h2 {
+  margin: 0 0 6px;
+  color: #51262b;
+  font-size: clamp(20px, 2vw, 26px);
+}
+.panel-head p {
+  font-size: 13px;
+  color: #897267;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Upload */
+.drop {
+  height: 150px;
+  border: 1.5px dashed #c9a87a;
+  border-radius: 12px;
+  background: #fff9f0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+  transition: border-color .2s, background .2s;
+}
+.drop:hover, .drop.drag { border-color: var(--vin); background: #fff4e4; }
+.drop input { display: none; }
+.drop .prompt strong { display: block; font-size: 14px; color: #6a3038; }
+.drop .prompt span { display: block; font-size: 11px; color: var(--muted); margin-top: 5px; }
+.drop img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff9f0;
+}
+.file-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Buttons */
+.btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  transition: transform .2s, background .2s, box-shadow .2s;
+}
+.btn:hover:not(:disabled) { transform: translateY(-2px); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.btn.dark {
+  background: #63262f;
+  color: #fff7e9;
+  box-shadow: 0 4px 0 #43151d;
+  width: 100%;
+}
+.btn.dark:hover:not(:disabled) {
+  background: #813442;
+  box-shadow: 0 6px 0 #43151d;
+}
+.btn.gold {
+  background: var(--gull);
+  color: #42191c;
+  width: 100%;
+  box-shadow: 0 4px 0 #b08a4a;
+}
+.btn.gold:hover:not(:disabled) {
+  background: #f0d090;
+  box-shadow: 0 6px 0 #b08a4a;
+}
+.btn.ghost {
+  background: transparent;
+  border: 1px solid #d9c9b3;
+  color: #6b3a35;
+}
+
+/* Progress */
+.progress {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  font-size: 12px;
+  color: #6a4038;
+}
+.progress.visible { display: flex; }
+.progress small { display: block; color: var(--muted); margin-top: 3px; }
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d4c0a8;
+  border-top-color: var(--vin);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+  flex: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Scale */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+}
+.field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: #927364;
+}
+.scale-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.scale-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--vin);
+  height: 6px;
+}
+.scale-val {
+  min-width: 52px;
+  text-align: right;
+  font-weight: 700;
+  color: #5c3230;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+
+/* Stats / price */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
+.stat {
+  background: #f4e9d8;
+  border: 1px solid #e6d3b9;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.stat .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #9a7965;
+  font-weight: 700;
+}
+.stat .value {
+  font: 600 16px 'Playfair Display', Georgia, serif;
+  color: #5c3230;
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.price-box {
+  background: linear-gradient(135deg, #f8edd8, #f1e0c4);
+  border: 1px solid #d8c1a0;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  margin: 16px 0;
+}
+.price-box .label {
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #8a6550;
+  font-weight: 700;
+}
+.price-box .amount {
+  font: 700 36px 'Playfair Display', Georgia, serif;
+  color: #6d3038;
+  margin: 6px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.price-box .note {
+  font-size: 11px;
+  color: #9a7965;
+}
+
+.info-box {
+  background: #f4e9d8;
+  border: 1px solid #e6d3b9;
+  padding: 12px 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  color: #805b4d;
+  line-height: 1.55;
+  margin-top: 12px;
+}
+.info-box strong { color: #643635; }
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.links a {
+  color: #8b5a4a;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.links a:hover { text-decoration: underline; }
+
+.order-done {
+  text-align: center;
+  padding: 18px 10px;
+}
+.order-done .seal { font-size: 40px; color: #884f46; }
+.order-done h3 {
+  font-size: 22px;
+  color: #51262b;
+  margin: 8px 0;
+}
+
+.footer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px clamp(14px, 3vw, 40px) 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #a08070;
+  font-size: 11px;
+  border-top: 1px solid #4a3034;
+}
+
+@media (max-width: 860px) {
+  .workspace { grid-template-columns: 1fr; }
+  .showcase { position: relative; top: auto; }
+  .stage { min-height: 300px; aspect-ratio: 1.2/1; }
+  .intro h1 { color: #fff4e8; }
+}
+@media (max-width: 520px) {
+  .stats { grid-template-columns: 1fr; }
+  .mast-right { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="brandmark">
+    <div class="crest" aria-hidden="true">✦</div>
+    <div>
+      <strong>Sjokoladefabrikken</strong>
+      <small>Posebyen · Kristiansand</small>
+    </div>
+  </div>
+  <div class="mast-right">
+    <span>✧ Egendefinert sjokolade fra bilde ✧</span>
+  </div>
+</header>
+<div class="ribbon">Last opp bilde → MoGe-3 genererer form → Skaler → Bestill</div>
+
+<main class="app-inner">
+  <section class="intro">
+    <span class="eyebrow">Bestilling · Egendefinert form</span>
+    <h1>Din form. Din sjokolade.</h1>
+    <p>Last opp et bilde av en silhuett, logo eller tegning. Vi lager en 3D-sjokoladeform, viser mål og pris etter volum – klar til bestilling.</p>
+  </section>
+
+  <section class="workspace">
+    <!-- 3D STAGE -->
+    <div class="showcase">
+      <div class="showcase-head">
+        <span>3D-forhåndsvisning</span>
+        <span id="viewerStatus">Venter på modell</span>
+      </div>
+      <div class="stage" id="stage">
+        <div class="empty-state" id="emptyState">
+          <div class="icon">◇</div>
+          <b>Sjokoladen din vises her</b>
+          <span>Last opp et bilde og generer 3D-modellen</span>
+        </div>
+        <div id="canvasHost"></div>
+        <div class="viewer-tools" id="viewerTools">
+          <button id="resetView" title="Nullstill kamera">↺</button>
+          <span>DRA FOR Å ROTERE · SCROLL FOR ZOOM</span>
+        </div>
+      </div>
+      <div class="stage-foot">
+        <div>
+          <small id="stageDesc">Ingen modell lastet</small>
+          <strong id="stageTitle">Din sjokolade</strong>
+        </div>
+        <div class="measure-pills" id="measurePills">
+          <span>—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <div class="panel" id="orderPanel">
+        <div class="panel-head">
+          <span class="overline">01 · Bilde til form</span>
+          <h2>Last opp motiv</h2>
+          <p>PNG, JPG eller WebP. Silhuetter og enkle motiver gir best resultat.</p>
+        </div>
+
+        <label class="drop" id="drop">
+          <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
+          <div class="prompt" id="uploadPrompt">
+            <strong>Slipp bilde her</strong>
+            <span>eller klikk for å velge · maks 15 MB</span>
+          </div>
+          <img id="preview" alt="" hidden>
+        </label>
+        <div class="file-meta" id="fileMeta">Ingen bilde valgt</div>
+
+        <button class="btn dark" id="generate" disabled>Generer 3D-sjokolade ↗</button>
+
+        <div class="progress" id="progress">
+          <div class="spinner"></div>
+          <div>
+            <b id="progressTitle">Behandler bilde</b>
+            <small id="progressText">Sender til MoGe / ComfyUI…</small>
+          </div>
+        </div>
+
+        <div class="links" id="resultLinks" hidden>
+          <a id="depthLink" target="_blank">Åpne depth map ↗</a>
+          <a id="downloadLink">Last ned OBJ ↓</a>
+        </div>
+
+        <div class="field" id="scaleField" hidden>
+          <label for="scale">Skalering av modell</label>
+          <div class="scale-row">
+            <input type="range" id="scale" min="0.4" max="2.5" step="0.05" value="1">
+            <span class="scale-val" id="scaleVal">100%</span>
+          </div>
+        </div>
+
+        <div class="stats" id="stats" hidden>
+          <div class="stat">
+            <div class="label">Lengde (X)</div>
+            <div class="value" id="dimX">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Bredde (Z)</div>
+            <div class="value" id="dimZ">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Tykkelse (Y)</div>
+            <div class="value" id="dimY">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Volum</div>
+            <div class="value" id="dimVol">—</div>
+          </div>
+        </div>
+
+        <div class="price-box" id="priceBox" hidden>
+          <div class="label">Estimert pris</div>
+          <div class="amount" id="priceAmount">—</div>
+          <div class="note">Basert på volum · kr 0,85 per cm³ + grunnpris 89 kr</div>
+        </div>
+
+        <button class="btn gold" id="orderBtn" disabled>Bestill denne sjokoladen ✦</button>
+
+        <div class="info-box">
+          <strong>Pris og mål er veiledende.</strong>
+          Volum beregnes fra modellens bounding box. Endelig form og vekt bekreftes av fabrikken før produksjon. Ingen ekte betaling i denne demoen.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Sjokoladefabrikken · studentprototype</span>
+  <span>MoGe-3 · Three.js · volumpris</span>
+</footer>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
+
+const $ = id => document.getElementById(id);
+
+const fileInput = $("file");
+const drop = $("drop");
+const preview = $("preview");
+const uploadPrompt = $("uploadPrompt");
+const generateBtn = $("generate");
+const fileMeta = $("fileMeta");
+const progress = $("progress");
+const progressTitle = $("progressTitle");
+const progressText = $("progressText");
+const viewerStatus = $("viewerStatus");
+const emptyState = $("emptyState");
+const viewerTools = $("viewerTools");
+const canvasHost = $("canvasHost");
+const scaleInput = $("scale");
+const scaleVal = $("scaleVal");
+const scaleField = $("scaleField");
+const stats = $("stats");
+const priceBox = $("priceBox");
+const orderBtn = $("orderBtn");
+const resultLinks = $("resultLinks");
+
+let selectedFile = null;
+let renderer, scene, camera, controls;
+let currentModel = null;
+let baseObject = null;       // the loaded OBJ (unscaled group content)
+let userScale = 1;
+let baseSize = new THREE.Vector3(1, 1, 1); // size at scale=1 after lay-flat
+let objUrl = null;
+
+// Pricing: base + per cm³ (demo units treat model units as cm)
+const BASE_PRICE = 89;
+const PRICE_PER_CM3 = 0.85;
+const CHOCOLATE_COLOR = 0x5c2e24;
+
+function chooseFile(file) {
+  if (!file) return;
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    alert("Velg PNG, JPEG eller WebP.");
+    return;
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    alert("Maks 15 MB.");
+    return;
+  }
+  selectedFile = file;
+  preview.src = URL.createObjectURL(file);
+  preview.hidden = false;
+  uploadPrompt.hidden = true;
+  fileMeta.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+  generateBtn.disabled = false;
+}
+
+fileInput.addEventListener("change", e => chooseFile(e.target.files[0]));
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("drag"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+drop.addEventListener("drop", e => {
+  e.preventDefault();
+  drop.classList.remove("drag");
+  chooseFile(e.dataTransfer.files[0]);
+});
+
+function initViewer() {
+  if (renderer) return;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x1a1214);
+
+  camera = new THREE.PerspectiveCamera(42, 1, 0.01, 10000);
+  camera.position.set(35, 28, 50);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  canvasHost.appendChild(renderer.domElement);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  scene.add(new THREE.HemisphereLight(0xf5e6c8, 0x3a2520, 1.7));
+  const key = new THREE.DirectionalLight(0xfff0d8, 2.3);
+  key.position.set(28, 45, 35);
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffaa88, 0.95);
+  fill.position.set(-25, 12, -18);
+  scene.add(fill);
+
+  const resize = () => {
+    const w = canvasHost.clientWidth;
+    const h = canvasHost.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  };
+  new ResizeObserver(resize).observe(canvasHost);
+  resize();
+
+  (function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+}
+
+function layFlat(obj) {
+  const candidates = [
+    { x: 0, y: 0, z: 0 },
+    { x: -Math.PI / 2, y: 0, z: 0 },
+    { x: Math.PI / 2, y: 0, z: 0 },
+    { x: -Math.PI / 2, y: 0, z: Math.PI / 2 },
+    { x: -Math.PI / 2, y: 0, z: -Math.PI / 2 },
+    { x: 0, y: 0, z: Math.PI / 2 },
+  ];
+  let best = candidates[0];
+  let bestY = Infinity;
+  for (const r of candidates) {
+    obj.rotation.set(r.x, r.y, r.z);
+    obj.updateMatrixWorld(true);
+    const size = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3());
+    if (size.y < bestY) {
+      bestY = size.y;
+      best = r;
+    }
+  }
+  obj.rotation.set(best.x, best.y, best.z);
+  obj.updateMatrixWorld(true);
+}
+
+function clearModel() {
+  if (currentModel) {
+    scene.remove(currentModel);
+    currentModel.traverse(c => {
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) {
+        if (Array.isArray(c.material)) c.material.forEach(m => m.dispose());
+        else c.material.dispose();
+      }
+    });
+    currentModel = null;
+    baseObject = null;
+  }
+}
+
+function frameModel() {
+  if (!currentModel) return;
+  const box = new THREE.Box3().setFromObject(currentModel);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  camera.position.set(
+    center.x + maxDim * 1.45,
+    center.y + maxDim * 1.15,
+    center.z + maxDim * 2.0
+  );
+  camera.near = maxDim / 1000;
+  camera.far = maxDim * 100;
+  camera.updateProjectionMatrix();
+  controls.target.copy(center);
+  controls.update();
+}
+
+function updateMeasurements() {
+  if (!currentModel) return;
+  const box = new THREE.Box3().setFromObject(currentModel);
+  const size = box.getSize(new THREE.Vector3());
+  // Treat units as cm for the demo
+  const x = size.x;
+  const y = size.y;
+  const z = size.z;
+  const vol = x * y * z;
+
+  $("dimX").textContent = x.toFixed(1) + " mm";
+  $("dimY").textContent = y.toFixed(1) + " mm";
+  $("dimZ").textContent = z.toFixed(1) + " mm";
+  $("dimVol").textContent = vol.toFixed(0)/1000 + " cm³";
+
+  $("measurePills").innerHTML = `
+    <span>L ${x.toFixed(1)} cm</span>
+    <span>B ${z.toFixed(1)} cm</span>
+    <span>T ${y.toFixed(1)} cm</span>
+    <span>${vol.toFixed(0)} cm³</span>
+  `;
+
+  const price = ((BASE_PRICE + vol * 0.15)/150) + 50 ;
+  $("priceAmount").textContent = Math.round(price) + " kr";
+  $("stageDesc").textContent = `${x.toFixed(1)} × ${z.toFixed(1)} × ${y.toFixed(1)} cm · ${vol.toFixed(0)} cm³`;
+}
+
+function applyUserScale() {
+  if (!baseObject || !currentModel) return;
+  baseObject.scale.setScalar(userScale);
+  // Re-center on ground after scale
+  baseObject.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(baseObject);
+  baseObject.position.y -= box.min.y;
+  // Keep group centered in XZ
+  const center = box.getCenter(new THREE.Vector3());
+  baseObject.position.x -= center.x;
+  baseObject.position.z -= center.z;
+  // After moving, ground again
+  baseObject.updateMatrixWorld(true);
+  const box2 = new THREE.Box3().setFromObject(baseObject);
+  baseObject.position.y -= box2.min.y;
+
+  updateMeasurements();
+}
+
+function showOBJ(url) {
+  initViewer();
+  clearModel();
+  viewerStatus.textContent = "Laster modell…";
+
+  new OBJLoader().load(url, object => {
+    layFlat(object);
+
+    // Center
+    const box0 = new THREE.Box3().setFromObject(object);
+    const center0 = box0.getCenter(new THREE.Vector3());
+    object.position.sub(center0);
+
+    // Normalize size: longest horizontal ~ 18 cm at scale 1
+    const size0 = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+    const target = 18;
+    const s = target / Math.max(size0.x, size0.z, 0.001);
+    object.scale.setScalar(s);
+    object.updateMatrixWorld(true);
+
+    // Ground
+    const box1 = new THREE.Box3().setFromObject(object);
+    object.position.y -= box1.min.y;
+
+    // Chocolate material
+    object.traverse(child => {
+      if (child.isMesh) {
+        child.material = new THREE.MeshStandardMaterial({
+          color: CHOCOLATE_COLOR,
+          roughness: 0.38,
+          metalness: 0.04,
+          side: THREE.DoubleSide
+        });
+        child.geometry.computeVertexNormals();
+      }
+    });
+
+    baseObject = object;
+    baseSize = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+
+    currentModel = new THREE.Group();
+    currentModel.add(object);
+
+    // Soft ground shadow
+    const shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(14, 48),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22 })
+    );
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = -0.02;
+    currentModel.add(shadow);
+
+    scene.add(currentModel);
+
+    userScale = 1;
+    scaleInput.value = 1;
+    scaleVal.textContent = "100%";
+    applyUserScale();
+    frameModel();
+
+    emptyState.hidden = true;
+    viewerTools.classList.add("visible");
+    scaleField.hidden = false;
+    stats.hidden = false;
+    priceBox.hidden = false;
+    orderBtn.disabled = false;
+    viewerStatus.textContent = "Modell klar";
+    $("stageTitle").textContent = "Din egendefinerte sjokolade";
+  }, undefined, err => {
+    console.error(err);
+    viewerStatus.textContent = "Feil ved lasting";
+    alert("Kunne ikke laste OBJ-preview.");
+  });
+}
+
+scaleInput.addEventListener("input", () => {
+  userScale = parseFloat(scaleInput.value) || 1;
+  scaleVal.textContent = Math.round(userScale * 100) + "%";
+  applyUserScale();
+});
+
+$("resetView").addEventListener("click", frameModel);
+
+generateBtn.addEventListener("click", async () => {
+  if (!selectedFile) return;
+  generateBtn.disabled = true;
+  progress.classList.add("visible");
+  resultLinks.hidden = true;
+  progressTitle.textContent = "Genererer geometri";
+  progressText.textContent = "Laster opp bilde og venter på MoGe / ComfyUI…";
+  viewerStatus.textContent = "Genererer…";
+
+  try {
+    const form = new FormData();
+    form.append("image", selectedFile);
+    const response = await fetch("/api/generate", { method: "POST", body: form });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || data.message || "Generering feilet");
+
+    progressText.textContent = "Laster 3D-preview…";
+    objUrl = data.obj_url + (data.obj_url.includes("?") ? "&" : "?") + "v=" + Date.now();
+    showOBJ(objUrl);
+
+    if (data.depth_url) {
+      $("depthLink").href = data.depth_url;
+      $("depthLink").style.display = "";
+    } else {
+      $("depthLink").style.display = "none";
+    }
+    $("downloadLink").href = data.download_url || data.obj_url;
+    $("downloadLink").download = "min-sjokolade.obj";
+    resultLinks.hidden = false;
+
+    progressTitle.textContent = "Ferdig";
+    progressText.textContent = "Modellen er klar – skaler og bestill.";
+  } catch (err) {
+    console.error(err);
+    progressTitle.textContent = "Generering feilet";
+    progressText.textContent = err.message || String(err);
+    viewerStatus.textContent = "Feil";
+  } finally {
+    generateBtn.disabled = false;
+  }
+});
+
+orderBtn.addEventListener("click", () => {
+  if (!currentModel) return;
+  const box = new THREE.Box3().setFromObject(currentModel);
+  const size = box.getSize(new THREE.Vector3());
+  const vol = size.x * size.y * size.z;
+  const price = Math.round(BASE_PRICE + vol * PRICE_PER_CM3);
+
+  const panel = $("orderPanel");
+  panel.innerHTML = `
+    <div class="order-done">
+      <div class="seal">✦</div>
+      <h3>Takk for bestillingen</h3>
+      <p style="color:#6a4038;font-size:13px;margin:0 0 12px">
+        Demo-bestilling registrert.<br>
+        Mål: ${size.x.toFixed(1)} × ${size.z.toFixed(1)} × ${size.y.toFixed(1)} cm<br>
+        Volum: ${vol.toFixed(0)} cm³ · Estimert pris: <strong>${price} kr</strong>
+      </p>
+      <p style="font-size:12px;color:#9a7965;margin:0 0 16px">
+        Ingen ekte betaling eller produksjon i denne prototypen.
+        Fabrikken vil bekrefte endelig form og pris.
+      </p>
+      <button class="btn dark" id="newOrder" style="max-width:240px;margin:0 auto">Ny bestilling</button>
+    </div>
+  `;
+  $("newOrder").onclick = () => location.reload();
+});
+</script>
+</body>
+</html>

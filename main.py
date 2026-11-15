@@ -32,6 +32,10 @@ app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 @app.get("/")
 async def index():
     return FileResponse(BASE / "static" / "index.html")
+@app.get("/choco")
+async def index():
+    return FileResponse(BASE / "static" / "custom-choco.html")
+
 
 
 @app.get("/api/health")
